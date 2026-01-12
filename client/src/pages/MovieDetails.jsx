@@ -43,7 +43,7 @@
 //       console.log(error)
 //     }
 //   }
-  
+
 //   useEffect(()=>{
 //     getShow()
 //   },[id])
@@ -73,7 +73,7 @@
 //             <button className='flex items-center gap-2 px-7 py-3 text-sm bg-gray-800 hover:bg-gray-900 transition rounded-md font-medium cursor-pointer active:scale-95'>
 //               <PlayCircleIcon className="w-5 h-5"/>
 //               Watch Trailer
-              
+
 //               </button>
 //             <a href="#dateSelect" className='px-10 py-3 text-sm bg-primary hover:bg-primary-dull transition rounded-md font-medium cursor-pointer active:scale-95'>Buy Tickets</a>
 //             <button onClick={handleFavorite} className='bg-gray-700 p-2.5 rounded-full transition cursor-pointer active:scale-95'>
@@ -134,11 +134,11 @@
 //     try {
 //       setLoading(true);
 //       const { data } = await axios.get(`/api/show/${id}`);
-      
+
 //       if (data.success) {
 //         setMovie(data.movie);
 //         setDateTime(data.dateTime);
-        
+
 //         const dates = Object.keys(data.dateTime);
 //         if (dates.length > 0) {
 //           setSelectedDate(dates[0]);
@@ -269,7 +269,7 @@
 //           <div>
 //             <div className="bg-white rounded-lg shadow p-6 sticky top-4">
 //               <h2 className="text-xl font-bold mb-4">Book Tickets</h2>
-              
+
 //               {Object.keys(dateTime).length > 0 ? (
 //                 <>
 //                   {/* Date Selection */}
@@ -1016,8 +1016,8 @@ const MovieDetails = () => {
               <button
                 onClick={() => toggleFavorite(movie._id)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105
-                  ${isFav 
-                    ? "bg-red-600 hover:bg-red-700 text-white" 
+                  ${isFav
+                    ? "bg-red-600 hover:bg-red-700 text-white"
                     : "bg-zinc-800 hover:bg-zinc-700 text-gray-300"
                   }`}
               >
@@ -1037,28 +1037,73 @@ const MovieDetails = () => {
           <p className="text-gray-300 text-lg leading-relaxed">{movie.overview}</p>
         </div>
 
-        {/* CAST */}
+
+
+        {/* CAST WITHOUT IMAGES (OMDB ONLY) */}
+        {/* {movie.casts && movie.casts.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-4 text-red-500">Cast</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {movie.casts.map((cast, idx) => (
+                <div key={idx} className="bg-zinc-900 rounded-lg p-4 border border-zinc-800 hover:border-red-900 transition flex items-center gap-3">
+                  <div className="w-12 h-12 bg-zinc-800 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-2xl">👤</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-sm truncate">
+                      {typeof cast === 'string' ? cast : cast.name}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )} */}
+
+        {/* CAST WITH IMAGES */}
         {movie.casts && movie.casts.length > 0 && (
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-4 text-red-500">Cast</h2>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {movie.casts.map((cast, idx) => (
-                <span
-                  key={idx}
-                  className="px-4 py-2 bg-zinc-900 text-gray-300 rounded-lg border border-zinc-800 hover:border-red-900 transition"
-                >
-                  {cast}
-                </span>
+                <div key={idx} className="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 hover:border-red-900 transition">
+                  {cast.profile_path ? (
+                    <img
+                      src={cast.profile_path}
+                      alt={cast.name}
+                      className="w-full h-64 object-cover"
+                      onError={(e) => {
+                        // Fallback if image fails to load
+                        e.target.src = 'https://via.placeholder.com/185x278?text=No+Image';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-64 bg-zinc-800 flex items-center justify-center">
+                      <span className="text-6xl">👤</span>
+                    </div>
+                  )}
+                  <div className="p-3">
+                    <p className="font-semibold text-white text-sm truncate">{cast.name}</p>
+                    <p className="text-xs text-gray-400 truncate">{cast.character}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         )}
 
+        {/* Fallback if no casts */}
+        {(!movie.casts || movie.casts.length === 0) && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-4 text-red-500">Cast</h2>
+            <p className="text-gray-400">Cast information not available</p>
+          </div>
+        )}
         {/* DATE SELECTION */}
         {availableDates.length > 0 && (
           <div className="mb-8">
             <h2 className="text-2xl font-bold mb-6 text-red-500">Choose Date</h2>
-            
+
             <div className="flex items-center gap-4">
               {/* Previous Button */}
               <button
@@ -1074,14 +1119,14 @@ const MovieDetails = () => {
                 {visibleDates.map((date) => {
                   const { day, month, weekday } = formatDate(date);
                   const isSelected = date === selectedDate;
-                  
+
                   return (
                     <button
                       key={date}
                       onClick={() => setSelectedDate(date)}
                       className={`flex-1 min-w-[120px] p-4 rounded-xl border-2 transition-all transform hover:scale-105
-                        ${isSelected 
-                          ? "bg-red-600 border-red-600 text-white shadow-lg shadow-red-900/50" 
+                        ${isSelected
+                          ? "bg-red-600 border-red-600 text-white shadow-lg shadow-red-900/50"
                           : "bg-zinc-900 border-zinc-800 text-gray-300 hover:border-red-900"
                         }`}
                     >
