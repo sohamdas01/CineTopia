@@ -1,4 +1,4 @@
-// server/services/watchmodeClient.js
+
 import axios from "axios";
 
 export const watchmode = axios.create({
