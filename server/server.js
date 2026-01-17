@@ -1,5 +1,4 @@
 
-
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
@@ -19,8 +18,25 @@ const port = 3000;
 
 await connectDB();
 
+// app.use(cors({
+//   origin: "http://localhost:5173",
+//   credentials: true,
+//   allowedHeaders: ["Content-Type", "Authorization"],
+// }));
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+].filter(Boolean); // Remove undefined values
+
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
